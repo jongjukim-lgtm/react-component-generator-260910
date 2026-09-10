@@ -2,6 +2,15 @@ import { useState, useEffect } from 'react';
 import { PromptInput } from './components/PromptInput';
 import { ComponentCard } from './components/ComponentCard';
 import { useComponentGenerator } from './hooks/useComponentGenerator';
+import { usePersistentState } from './hooks/usePersistentState';
+import {
+  addPrompt,
+  parseApiKeys,
+  parsePromptHistory,
+  parseProvider,
+  withApiKey,
+  STORAGE_KEYS,
+} from './utils/persistence';
 import type { Provider } from './types';
 import './App.css';
 
@@ -11,9 +20,21 @@ const PROVIDER_CONFIG = {
 } as const;
 
 function App() {
-  const [apiKey, setApiKey] = useState('');
+  const [apiKeys, setApiKeys] = usePersistentState(STORAGE_KEYS.apiKeys, parseApiKeys, {
+    anthropic: '',
+    google: '',
+  });
   const [showKey, setShowKey] = useState(false);
-  const [provider, setProvider] = useState<Provider>('google');
+  const [provider, setProvider] = usePersistentState<Provider>(
+    STORAGE_KEYS.provider,
+    parseProvider,
+    'google',
+  );
+  const [promptHistory, setPromptHistory] = usePersistentState<string[]>(
+    STORAGE_KEYS.promptHistory,
+    parsePromptHistory,
+    [],
+  );
   const [envKeys, setEnvKeys] = useState<Record<Provider, boolean>>({
     anthropic: false,
     google: false,
@@ -29,18 +50,20 @@ function App() {
   }, []);
 
   const hasEnvKey = envKeys[provider];
+  const apiKey = apiKeys[provider];
 
   const handleGenerate = (prompt: string) => {
     if (!apiKey.trim() && !hasEnvKey) {
       alert(`${PROVIDER_CONFIG[provider].label} API 키를 입력하거나 .env에 설정해주세요.`);
       return;
     }
+    setPromptHistory((prev) => addPrompt(prev, prompt));
     generate(prompt, apiKey || undefined, provider);
   };
 
+  // provider마다 키 슬롯이 따로 있으므로 전환할 때 비우지 않는다.
   const handleProviderChange = (newProvider: Provider) => {
     setProvider(newProvider);
-    setApiKey('');
   };
 
   const activeProvider = PROVIDER_CONFIG[provider].label;
@@ -82,7 +105,11 @@ function App() {
 
         <div className="deck">
           <section className="order" aria-label="컴포넌트 생성">
-            <PromptInput onGenerate={handleGenerate} isLoading={isLoading} />
+            <PromptInput
+              onGenerate={handleGenerate}
+              isLoading={isLoading}
+              history={promptHistory}
+            />
           </section>
 
           <aside className="bay" aria-label="실행 설정">
@@ -112,7 +139,9 @@ function App() {
                   className="slot key-input"
                   type={showKey ? 'text' : 'password'}
                   value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
+                  onChange={(e) =>
+                    setApiKeys((prev) => withApiKey(prev, provider, e.target.value))
+                  }
                   placeholder={
                     hasEnvKey ? '서버 키 사용 중' : PROVIDER_CONFIG[provider].placeholder
                   }

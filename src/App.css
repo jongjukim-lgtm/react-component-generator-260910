@@ -310,6 +310,41 @@
   color: var(--ink);
 }
 
+/* 최근 프롬프트. 예시 카드와 같은 종이 재질이지만 개수가 가변(최대 20개)이라
+   3열 그리드 대신 흘러넘치는 압축 칩으로 둔다. */
+.history-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.history-item {
+  max-width: 260px;
+  padding: 6px 10px;
+  border: 1px solid var(--paper-line);
+  border-radius: 2px;
+  background: var(--paper);
+  color: var(--ink-soft);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition:
+    background 0.14s ease,
+    color 0.14s ease;
+}
+
+.history-item:hover {
+  background: var(--paper-hi);
+  color: var(--ink);
+}
+
 /* 컨트롤 베이 */
 .bay {
   align-self: start;

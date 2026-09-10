@@ -73,4 +73,40 @@ describe('PromptInput', () => {
 
     expect(screen.getByText(`2 / ${PROMPT_MAX_LENGTH}`)).toBeInTheDocument();
   });
+
+  describe('프롬프트 히스토리', () => {
+    it('히스토리가 비어 있으면 목록을 보여주지 않는다', () => {
+      render(<PromptInput onGenerate={vi.fn()} isLoading={false} history={[]} />);
+      expect(screen.queryByRole('list', { name: '최근 프롬프트' })).not.toBeInTheDocument();
+    });
+
+    it('히스토리 항목을 저장된 순서대로 보여준다', () => {
+      render(
+        <PromptInput onGenerate={vi.fn()} isLoading={false} history={['최근 것', '옛날 것']} />,
+      );
+
+      const items = screen.getAllByRole('listitem');
+      expect(items.map((item) => item.textContent)).toEqual(['최근 것', '옛날 것']);
+    });
+
+    it('히스토리 항목을 누르면 입력란에 채워진다', async () => {
+      const user = userEvent.setup();
+      render(<PromptInput onGenerate={vi.fn()} isLoading={false} history={['알림 배너']} />);
+
+      await user.click(screen.getByRole('button', { name: '알림 배너' }));
+
+      expect(screen.getByRole('textbox')).toHaveValue('알림 배너');
+    });
+
+    it('히스토리로 채운 뒤 생성하면 그 프롬프트로 onGenerate가 호출된다', async () => {
+      const onGenerate = vi.fn();
+      const user = userEvent.setup();
+      render(<PromptInput onGenerate={onGenerate} isLoading={false} history={['알림 배너']} />);
+
+      await user.click(screen.getByRole('button', { name: '알림 배너' }));
+      await user.click(screen.getByRole('button', { name: '컴포넌트 생성' }));
+
+      expect(onGenerate).toHaveBeenCalledWith('알림 배너');
+    });
+  });
 });

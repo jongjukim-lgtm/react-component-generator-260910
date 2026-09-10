@@ -50,7 +50,8 @@
 
 ### Test Boundary
 
-15. **테스트는 순수 함수와 사용자 입력 경계에만 있다:** `server/generator.ts`, `server/fallback.ts`, `src/components/PromptInput.tsx`. `server/index.ts`, 훅, 프리뷰 컴포넌트에는 없다.
+15. **테스트는 순수 함수와 사용자 입력 경계에 있다:** `server/generator.ts`, `server/fallback.ts`, `src/utils/*`(`promptValidation`, `persistence`, `storage`), `src/components/PromptInput.tsx`. `server/index.ts`, 프리뷰 컴포넌트에는 없다.
+    - **예외적으로 `src/hooks/usePersistentState.ts`에는 테스트가 있다** (`src/hooks/usePersistentState.test.ts`). 마운트 시 저장을 건너뛰는 동작은 순수 함수로 뺄 수 없는 effect 타이밍 문제이고, 실제로 데이터가 사라지는 버그가 있었기 때문이다. **훅에 테스트를 붙이는 것은 이런 경우로 한정한다** — 로직은 여전히 순수 함수로 빼는 것이 우선이다 (규칙 16).
 16. **로직은 부수효과에서 분리해 테스트를 붙인다.** `server/generator.ts:1-2` 주석이 의도를 명시한다 — "부수효과(Bun.serve 등)가 없어 단위 테스트가 가능하다". 서버에 로직을 더할 때 `Bun.serve` 핸들러 안에 묻지 말고 순수 함수로 빼라.
 17. **테스트 설명은 한국어 서술문으로 쓴다** (`server/generator.test.ts:5`, `src/components/PromptInput.test.tsx:7`).
 18. **버튼 문자열이 테스트 계약이다.** `src/components/PromptInput.test.tsx:9,18,27`이 접근성 이름 `'컴포넌트 생성'`과 `'생성 중...'`에 의존한다. 바꾸려면 테스트를 함께 고쳐라.
