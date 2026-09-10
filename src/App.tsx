@@ -2,6 +2,14 @@ import { useState, useEffect } from 'react';
 import { PromptInput } from './components/PromptInput';
 import { ComponentCard } from './components/ComponentCard';
 import { useComponentGenerator } from './hooks/useComponentGenerator';
+import { usePersistentState } from './hooks/usePersistentState';
+import {
+  addPrompt,
+  parseApiKey,
+  parsePromptHistory,
+  parseProvider,
+  STORAGE_KEYS,
+} from './utils/persistence';
 import type { Provider } from './types';
 import './App.css';
 
@@ -11,9 +19,18 @@ const PROVIDER_CONFIG = {
 } as const;
 
 function App() {
-  const [apiKey, setApiKey] = useState('');
+  const [apiKey, setApiKey] = usePersistentState(STORAGE_KEYS.apiKey, parseApiKey, '');
   const [showKey, setShowKey] = useState(false);
-  const [provider, setProvider] = useState<Provider>('google');
+  const [provider, setProvider] = usePersistentState<Provider>(
+    STORAGE_KEYS.provider,
+    parseProvider,
+    'google',
+  );
+  const [promptHistory, setPromptHistory] = usePersistentState<string[]>(
+    STORAGE_KEYS.promptHistory,
+    parsePromptHistory,
+    [],
+  );
   const [envKeys, setEnvKeys] = useState<Record<Provider, boolean>>({
     anthropic: false,
     google: false,
@@ -35,6 +52,7 @@ function App() {
       alert(`${PROVIDER_CONFIG[provider].label} API 키를 입력하거나 .env에 설정해주세요.`);
       return;
     }
+    setPromptHistory((prev) => addPrompt(prev, prompt));
     generate(prompt, apiKey || undefined, provider);
   };
 
@@ -82,7 +100,11 @@ function App() {
 
         <div className="deck">
           <section className="order" aria-label="컴포넌트 생성">
-            <PromptInput onGenerate={handleGenerate} isLoading={isLoading} />
+            <PromptInput
+              onGenerate={handleGenerate}
+              isLoading={isLoading}
+              history={promptHistory}
+            />
           </section>
 
           <aside className="bay" aria-label="실행 설정">

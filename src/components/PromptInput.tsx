@@ -4,6 +4,7 @@ import { checkPromptLength, PROMPT_MAX_LENGTH } from '../utils/promptValidation'
 interface PromptInputProps {
   onGenerate: (prompt: string) => void;
   isLoading: boolean;
+  history?: string[];
 }
 
 const EXAMPLES = [
@@ -15,7 +16,7 @@ const EXAMPLES = [
   '테이블 행 상세보기 패널. 선택한 고객의 기본 정보와 최근 활동 표시',
 ];
 
-export function PromptInput({ onGenerate, isLoading }: PromptInputProps) {
+export function PromptInput({ onGenerate, isLoading, history = [] }: PromptInputProps) {
   const [prompt, setPrompt] = useState('');
   const counterId = useId();
   const errorId = useId();
@@ -74,6 +75,26 @@ export function PromptInput({ onGenerate, isLoading }: PromptInputProps) {
           </p>
         )}
       </form>
+
+      {history.length > 0 && (
+        <>
+          <p className="cards-hint">최근 프롬프트</p>
+          <ul className="history-list" aria-label="최근 프롬프트">
+            {history.map((item) => (
+              <li key={item}>
+                <button
+                  className="history-item"
+                  onClick={() => setPrompt(item)}
+                  type="button"
+                  title={item}
+                >
+                  {item}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
 
       <p className="cards-hint">눌러서 입력란을 채웁니다.</p>
       <div className="cards">
