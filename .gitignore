@@ -34,3 +34,6 @@ dist-ssr
 
 # playwright-cli 세션 산출물
 .playwright-cli/
+
+# oh-my-claudecode 세션 상태·리플레이 로그 (머신 국소 산출물)
+.omc/
