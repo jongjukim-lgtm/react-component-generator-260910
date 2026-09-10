@@ -14,11 +14,10 @@ export function CodeView({ code }: CodeViewProps) {
   };
 
   return (
-    <div className="code-panel">
-      <div className="panel-header">
-        <h3>코드</h3>
+    <div className="screen">
+      <div className="screen-bezel">
         <button className="btn-copy" onClick={handleCopy}>
-          {copied ? '복사됨!' : '복사'}
+          {copied ? '복사됨' : '복사'}
         </button>
       </div>
       <pre className="code-block">

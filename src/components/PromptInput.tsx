@@ -29,17 +29,15 @@ export function PromptInput({ onGenerate, isLoading }: PromptInputProps) {
   };
 
   return (
-    <div className="prompt-section">
-      <div className="prompt-heading">
-        <span className="panel-kicker">Prompt</span>
-        <h2>무엇을 만들까요?</h2>
-      </div>
+    <div className="prompt">
+      <h2 className="prompt-title">어떤 컴포넌트가 필요한가요?</h2>
+
       <form onSubmit={handleSubmit} className="prompt-form">
         <textarea
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           placeholder="예: 고객 목록 테이블 위에 들어갈 검색 필터 바를 만들어줘. 상태, 담당자, 날짜 범위 필터가 필요해."
-          className="prompt-textarea"
+          className="slot prompt-slot"
           rows={3}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
@@ -47,24 +45,23 @@ export function PromptInput({ onGenerate, isLoading }: PromptInputProps) {
             }
           }}
         />
-        <button
-          type="submit"
-          className="btn-generate"
-          disabled={!prompt.trim() || isLoading}
-        >
-          {isLoading ? (
-            <span className="loading-spinner">생성 중...</span>
-          ) : (
-            '컴포넌트 생성'
-          )}
-        </button>
+        <div className="prompt-launch">
+          <button type="submit" className="btn-generate" disabled={!prompt.trim() || isLoading}>
+            {isLoading ? '생성 중...' : '컴포넌트 생성'}
+          </button>
+          <span className="shortcut">
+            <kbd>⌘</kbd>
+            <kbd>↵</kbd>
+          </span>
+        </div>
       </form>
-      <div className="prompt-examples">
-        <span className="examples-label">예시 프롬프트</span>
+
+      <p className="cards-hint">눌러서 입력란을 채웁니다.</p>
+      <div className="cards">
         {EXAMPLES.map((example) => (
           <button
             key={example}
-            className="example-chip"
+            className="card"
             onClick={() => handleExampleClick(example)}
             type="button"
           >

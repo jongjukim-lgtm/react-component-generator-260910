@@ -9,18 +9,44 @@
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  --background: #f8fafc;
-  --foreground: #0f172a;
+
+  --chassis: #c9cec3;
+  --chassis-hi: #dee2d8;
+  --chassis-deep: #a7aea0;
+  --chassis-edge: #8d9587;
+
+  --paper: #f2f1e8;
+  --paper-hi: #faf9f2;
+  --paper-line: #d8d7c8;
+
+  /* ink-soft 는 종이·섀시 양쪽에서 4.5:1 이상, ink-faint 는 종이 위 전용 */
+  --ink: #1c2118;
+  --ink-soft: #4a5147;
+  --ink-faint: #656c61;
+
+  --signal: #c93a19;
+  --signal-deep: #8a2410;
+  --signal-wash: #fbe9e3;
+  --signal-on: #fffaf8;
+  --amber: #e0930f;
+
+  --screen: #1b1f1a;
+  --screen-ink: #d6dbcd;
+
+  --sans: 'Archivo', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --mono: 'IBM Plex Mono', 'SF Mono', Consolas, monospace;
 }
 
 body {
-  font-family:
-    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
-    sans-serif;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(248, 250, 252, 0.95)),
-    var(--background);
-  color: var(--foreground);
+  font-family: var(--sans);
+  font-size: 16px;
+  color: var(--ink);
+  background-color: var(--chassis);
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(28, 33, 24, 0.035) 0 1px,
+    transparent 1px 4px
+  );
   min-height: 100vh;
 }
 
@@ -29,8 +55,14 @@ input,
 select,
 textarea {
   font: inherit;
+  color: inherit;
 }
 
 button {
   -webkit-tap-highlight-color: transparent;
+}
+
+:where(a, button, input, select, textarea):focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
 }

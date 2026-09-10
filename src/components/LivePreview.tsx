@@ -6,18 +6,15 @@ interface LivePreviewProps {
 
 export function LivePreview({ code }: LivePreviewProps) {
   return (
-    <div className="preview-panel">
-      <div className="panel-header">
-        <h3>미리보기</h3>
+    <LiveProvider code={code} noInline>
+      <div className="figure">
+        <span className="tick tick--tl" aria-hidden="true" />
+        <span className="tick tick--tr" aria-hidden="true" />
+        <span className="tick tick--bl" aria-hidden="true" />
+        <span className="tick tick--br" aria-hidden="true" />
+        <ReactLivePreview />
       </div>
-      <div className="preview-content">
-        <LiveProvider code={code} noInline>
-          <div className="preview-render">
-            <ReactLivePreview />
-          </div>
-          <LiveError className="preview-error" />
-        </LiveProvider>
-      </div>
-    </div>
+      <LiveError className="preview-error" />
+    </LiveProvider>
   );
 }
