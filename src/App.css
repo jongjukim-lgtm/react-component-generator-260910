@@ -251,6 +251,31 @@
   box-shadow: 0 1px 0 var(--chassis-deep);
 }
 
+.prompt-counter {
+  margin-left: auto;
+  color: var(--ink-soft);
+  font-family: var(--mono);
+  font-size: 0.79rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.prompt-counter--over {
+  color: var(--signal-deep);
+  font-weight: 600;
+}
+
+.prompt-error {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border: 1px solid rgba(201, 58, 25, 0.45);
+  border-left: 4px solid var(--signal);
+  border-radius: 2px;
+  background: var(--signal-wash);
+  color: #6d2413;
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
 /* 펀치카드 예시 */
 .cards-hint {
   margin: 20px 0 9px;
@@ -760,6 +785,11 @@
 
   .shortcut {
     display: none;
+  }
+
+  .prompt-counter {
+    margin-left: 0;
+    text-align: right;
   }
 
   .sheet-head {

@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
+import { checkPromptLength, PROMPT_MAX_LENGTH } from '../utils/promptValidation';
 
 interface PromptInputProps {
   onGenerate: (prompt: string) => void;
@@ -16,10 +17,15 @@ const EXAMPLES = [
 
 export function PromptInput({ onGenerate, isLoading }: PromptInputProps) {
   const [prompt, setPrompt] = useState('');
+  const counterId = useId();
+  const errorId = useId();
+
+  const { length, isValid } = checkPromptLength(prompt);
+  const canSubmit = length > 0 && isValid && !isLoading;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (prompt.trim() && !isLoading) {
+    if (canSubmit) {
       onGenerate(prompt.trim());
     }
   };
@@ -39,6 +45,8 @@ export function PromptInput({ onGenerate, isLoading }: PromptInputProps) {
           placeholder="예: 고객 목록 테이블 위에 들어갈 검색 필터 바를 만들어줘. 상태, 담당자, 날짜 범위 필터가 필요해."
           className="slot prompt-slot"
           rows={3}
+          aria-invalid={!isValid}
+          aria-describedby={isValid ? counterId : `${counterId} ${errorId}`}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
               handleSubmit(e);
@@ -46,14 +54,25 @@ export function PromptInput({ onGenerate, isLoading }: PromptInputProps) {
           }}
         />
         <div className="prompt-launch">
-          <button type="submit" className="btn-generate" disabled={!prompt.trim() || isLoading}>
+          <button type="submit" className="btn-generate" disabled={!canSubmit}>
             {isLoading ? '생성 중...' : '컴포넌트 생성'}
           </button>
           <span className="shortcut">
             <kbd>⌘</kbd>
             <kbd>↵</kbd>
           </span>
+          <span
+            id={counterId}
+            className={`prompt-counter ${isValid ? '' : 'prompt-counter--over'}`}
+          >
+            {`${length} / ${PROMPT_MAX_LENGTH}`}
+          </span>
         </div>
+        {!isValid && (
+          <p id={errorId} className="prompt-error" role="alert">
+            {`${PROMPT_MAX_LENGTH}자까지 입력할 수 있습니다. ${length - PROMPT_MAX_LENGTH}자를 줄여주세요.`}
+          </p>
+        )}
       </form>
 
       <p className="cards-hint">눌러서 입력란을 채웁니다.</p>
