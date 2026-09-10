@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { readJson, writeJson } from './storage';
 import type { GeneratedComponent } from '../types';
 import {
-  parseApiKey,
+  parseApiKeys,
+  withApiKey,
   parseProvider,
   parsePromptHistory,
   parseComponents,
@@ -10,14 +11,44 @@ import {
   PROMPT_HISTORY_LIMIT,
 } from './persistence';
 
-describe('parseApiKey', () => {
-  it('문자열은 그대로 반환한다', () => {
-    expect(parseApiKey('sk-ant-abc')).toBe('sk-ant-abc');
+describe('parseApiKeys', () => {
+  it('두 provider의 키를 그대로 반환한다', () => {
+    expect(parseApiKeys({ anthropic: 'sk-ant-abc', google: 'AIza-xyz' })).toEqual({
+      anthropic: 'sk-ant-abc',
+      google: 'AIza-xyz',
+    });
   });
 
-  it('문자열이 아니면 null을 반환한다', () => {
-    expect(parseApiKey(null)).toBeNull();
-    expect(parseApiKey({ key: 'x' })).toBeNull();
+  it('객체가 아니면 빈 키 쌍을 반환한다', () => {
+    expect(parseApiKeys(null)).toEqual({ anthropic: '', google: '' });
+    expect(parseApiKeys('sk-ant-abc')).toEqual({ anthropic: '', google: '' });
+  });
+
+  it('한쪽만 저장돼 있으면 나머지는 빈 문자열로 채운다', () => {
+    expect(parseApiKeys({ google: 'AIza-xyz' })).toEqual({ anthropic: '', google: 'AIza-xyz' });
+  });
+
+  it('문자열이 아닌 값은 빈 문자열로 만든다', () => {
+    expect(parseApiKeys({ anthropic: 42, google: null })).toEqual({ anthropic: '', google: '' });
+  });
+});
+
+describe('withApiKey', () => {
+  it('지정한 provider의 키만 바꾼다', () => {
+    const keys = { anthropic: 'sk-ant-abc', google: 'AIza-xyz' };
+    expect(withApiKey(keys, 'google', 'AIza-새것')).toEqual({
+      anthropic: 'sk-ant-abc',
+      google: 'AIza-새것',
+    });
+  });
+
+  it('다른 provider의 키를 지우지 않는다', () => {
+    // provider를 바꿨다 되돌리면 키가 사라지던 버그의 재현 지점.
+    // 슬롯이 하나뿐이라 전환할 때마다 기존 키를 비워야 했다.
+    const keys = { anthropic: 'sk-ant-abc', google: '' };
+    const afterSwitch = withApiKey(keys, 'google', 'AIza-xyz');
+
+    expect(afterSwitch.anthropic).toBe('sk-ant-abc');
   });
 });
 

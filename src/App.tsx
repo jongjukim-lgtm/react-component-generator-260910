@@ -5,9 +5,10 @@ import { useComponentGenerator } from './hooks/useComponentGenerator';
 import { usePersistentState } from './hooks/usePersistentState';
 import {
   addPrompt,
-  parseApiKey,
+  parseApiKeys,
   parsePromptHistory,
   parseProvider,
+  withApiKey,
   STORAGE_KEYS,
 } from './utils/persistence';
 import type { Provider } from './types';
@@ -19,7 +20,10 @@ const PROVIDER_CONFIG = {
 } as const;
 
 function App() {
-  const [apiKey, setApiKey] = usePersistentState(STORAGE_KEYS.apiKey, parseApiKey, '');
+  const [apiKeys, setApiKeys] = usePersistentState(STORAGE_KEYS.apiKeys, parseApiKeys, {
+    anthropic: '',
+    google: '',
+  });
   const [showKey, setShowKey] = useState(false);
   const [provider, setProvider] = usePersistentState<Provider>(
     STORAGE_KEYS.provider,
@@ -46,6 +50,7 @@ function App() {
   }, []);
 
   const hasEnvKey = envKeys[provider];
+  const apiKey = apiKeys[provider];
 
   const handleGenerate = (prompt: string) => {
     if (!apiKey.trim() && !hasEnvKey) {
@@ -56,9 +61,9 @@ function App() {
     generate(prompt, apiKey || undefined, provider);
   };
 
+  // provider마다 키 슬롯이 따로 있으므로 전환할 때 비우지 않는다.
   const handleProviderChange = (newProvider: Provider) => {
     setProvider(newProvider);
-    setApiKey('');
   };
 
   const activeProvider = PROVIDER_CONFIG[provider].label;
@@ -134,7 +139,9 @@ function App() {
                   className="slot key-input"
                   type={showKey ? 'text' : 'password'}
                   value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
+                  onChange={(e) =>
+                    setApiKeys((prev) => withApiKey(prev, provider, e.target.value))
+                  }
                   placeholder={
                     hasEnvKey ? '서버 키 사용 중' : PROVIDER_CONFIG[provider].placeholder
                   }

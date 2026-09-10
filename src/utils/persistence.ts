@@ -6,7 +6,7 @@ import type { GeneratedComponent, Provider } from '../types';
 export const PROMPT_HISTORY_LIMIT = 20;
 
 export const STORAGE_KEYS = {
-  apiKey: 'rcg:api-key',
+  apiKeys: 'rcg:api-keys',
   provider: 'rcg:provider',
   promptHistory: 'rcg:prompt-history',
   components: 'rcg:components',
@@ -14,8 +14,20 @@ export const STORAGE_KEYS = {
 
 const PROVIDERS: readonly string[] = ['anthropic', 'google'];
 
-export function parseApiKey(raw: unknown): string | null {
-  return typeof raw === 'string' ? raw : null;
+export type ApiKeys = Record<Provider, string>;
+
+// provider마다 슬롯을 따로 둔다. 슬롯이 하나면 provider를 바꿀 때 기존 키를
+// 비워야 하고, 되돌아왔을 때 키가 사라진다.
+export function parseApiKeys(raw: unknown): ApiKeys {
+  const source = typeof raw === 'object' && raw !== null ? (raw as Record<string, unknown>) : {};
+  return {
+    anthropic: typeof source.anthropic === 'string' ? source.anthropic : '',
+    google: typeof source.google === 'string' ? source.google : '',
+  };
+}
+
+export function withApiKey(keys: ApiKeys, provider: Provider, value: string): ApiKeys {
+  return { ...keys, [provider]: value };
 }
 
 export function parseProvider(raw: unknown): Provider | null {
